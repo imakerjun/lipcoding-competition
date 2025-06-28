@@ -1,15 +1,13 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { authService } from '../services/auth';
 
 export default function Home(): JSX.Element {
   const router = useRouter();
 
   useEffect(() => {
     // 인증 상태 확인 후 적절한 페이지로 리다이렉트
-    // TODO: 실제 인증 상태 확인 로직 구현
-    const isAuthenticated = false; // 임시
-    
-    if (isAuthenticated) {
+    if (authService.isAuthenticated()) {
       router.push('/profile');
     } else {
       router.push('/login');

@@ -5,6 +5,7 @@ import { MatchRequestModel } from '../models/MatchRequest';
 import { AuthService } from '../services/AuthService';
 import { JWTService } from '../services/JWTService';
 import { UserProfileService } from '../services/UserProfileService';
+import { MentorService } from '../services/MentorService';
 import { AppConfig } from '../config/AppConfig';
 
 export interface ServiceContainer {
@@ -23,6 +24,7 @@ export interface ServiceContainer {
   jwtService: JWTService;
   authService: AuthService;
   userProfileService: UserProfileService;
+  mentorService: MentorService;
 }
 
 export class DIContainer {
@@ -68,6 +70,8 @@ export class DIContainer {
       this.services.userModel,
       this.services.userProfileModel
     );
+
+    this.services.mentorService = new MentorService(this.database);
 
     this.initialized = true;
   }
