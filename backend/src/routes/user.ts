@@ -5,30 +5,38 @@ import { AppError, ErrorCode } from '../errors/AppError';
 
 const router = Router();
 
-// 간단한 인증 미들웨어 (임시)
+// 간단한 인증 미들웨어 - 401 상태 코드 직접 반환
 const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new AppError(ErrorCode.UNAUTHORIZED, 'No token provided', 401);
+      res.status(401).json({ error: 'No token provided' });
+      return;
     }
 
     const token = authHeader.substring(7);
     const container = getContainer();
     const jwtService = container.get('jwtService');
 
-    const payload = await jwtService.verifyToken(token);
-    (req as any).user = {
-      userId: payload.userId,
-      email: payload.email,
-      role: payload.role,
-      name: payload.name
-    };
-
-    next();
+    try {
+      const payload = await jwtService.verifyToken(token);
+      (req as any).user = {
+        userId: payload.userId,
+        email: payload.email,
+        role: payload.role,
+        name: payload.name
+      };
+      next();
+    } catch (jwtError: any) {
+      // JWT 검증 실패 시 401 반환
+      res.status(401).json({ error: 'Invalid or expired token' });
+      return;
+    }
   } catch (error) {
-    next(error);
+    // 예상치 못한 에러는 500으로 처리
+    console.error('Authentication error:', error);
+    res.status(500).json({ error: 'Authentication failed' });
   }
 };
 
