@@ -30,14 +30,20 @@ export class AuthMiddleware {
         return;
       }
 
-      const decoded = await this.jwtService.verifyToken(token);
-      req.user = decoded;
-      
-      next();
+      try {
+        const decoded = await this.jwtService.verifyToken(token);
+        req.user = decoded;
+        next();
+      } catch (jwtError: any) {
+        // JWT 검증 실패 시 항상 401 반환
+        console.error('JWT verification failed:', jwtError.message);
+        res.status(401).json({ error: 'Invalid or expired token' });
+        return;
+      }
     } catch (error: any) {
-      // JWT 관련 에러는 모두 401로 처리
-      const errorMessage = error.message || 'Invalid or expired token';
-      res.status(401).json({ error: errorMessage });
+      // 예상치 못한 에러는 500으로 처리하지만 인증 관련은 401로
+      console.error('Authentication error:', error);
+      res.status(401).json({ error: 'Authentication failed' });
     }
   };
 

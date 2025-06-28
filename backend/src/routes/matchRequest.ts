@@ -62,8 +62,14 @@ export function createMatchRequestRoutes(container: DIContainer): Router {
         message
       });
 
-      const response = ResponseFormatter.success(request, '매칭 요청이 생성되었습니다.');
-      res.status(201).json(response);
+      // API 명세에 따른 응답 포맷
+      res.status(200).json({
+        id: request.id,
+        mentorId: request.mentorId,
+        menteeId: request.menteeId,
+        message: request.message,
+        status: request.status
+      });
     } catch (error: any) {
       next(error);
     }
@@ -75,8 +81,8 @@ export function createMatchRequestRoutes(container: DIContainer): Router {
       const userId = (req as AuthenticatedRequest).user!.userId;
       const requests = await matchRequestService.getIncomingRequests(userId);
 
-      const response = ResponseFormatter.success(requests, '받은 요청 목록을 조회했습니다.');
-      res.json(response);
+      // API 명세에 따른 배열 응답 포맷
+      res.status(200).json(requests);
     } catch (error: any) {
       next(error);
     }
@@ -88,8 +94,8 @@ export function createMatchRequestRoutes(container: DIContainer): Router {
       const userId = (req as AuthenticatedRequest).user!.userId;
       const requests = await matchRequestService.getOutgoingRequests(userId);
 
-      const response = ResponseFormatter.success(requests, '보낸 요청 목록을 조회했습니다.');
-      res.json(response);
+      // API 명세에 따른 배열 응답 포맷
+      res.status(200).json(requests);
     } catch (error: any) {
       next(error);
     }
@@ -101,8 +107,14 @@ export function createMatchRequestRoutes(container: DIContainer): Router {
 
       const result = await matchRequestService.acceptRequest(requestId, userId);
 
-      const response = ResponseFormatter.success({ accepted: result }, '요청을 수락했습니다.');
-      res.json(response);
+      // API 명세에 따른 응답 포맷
+      res.status(200).json({
+        id: result.id,
+        mentorId: result.mentorId,
+        menteeId: result.menteeId,
+        message: result.message,
+        status: result.status
+      });
     } catch (error: any) {
       next(error);
     }
@@ -116,8 +128,14 @@ export function createMatchRequestRoutes(container: DIContainer): Router {
       
       const result = await matchRequestService.rejectRequest(requestId, userId);
       
-      const response = ResponseFormatter.success({ rejected: result }, '요청을 거절했습니다.');
-      res.json(response);
+      // API 명세에 따른 응답 포맷
+      res.status(200).json({
+        id: result.id,
+        mentorId: result.mentorId,
+        menteeId: result.menteeId,
+        message: result.message,
+        status: result.status
+      });
     } catch (error: any) {
       next(error);
     }
@@ -131,8 +149,14 @@ export function createMatchRequestRoutes(container: DIContainer): Router {
       
       const result = await matchRequestService.cancelRequest(requestId, userId);
       
-      const response = ResponseFormatter.success({ cancelled: result }, '요청을 취소했습니다.');
-      res.json(response);
+      // API 명세에 따른 응답 포맷
+      res.status(200).json({
+        id: result.id,
+        mentorId: result.mentorId,
+        menteeId: result.menteeId,
+        message: result.message,
+        status: result.status
+      });
     } catch (error: any) {
       next(error);
     }

@@ -41,7 +41,8 @@ router.get('/me', authMiddleware, async (req: Request, res: Response, next: Next
 
     const profile = await userProfileService.getUserProfile(userId);
     
-    res.json(ResponseFormatter.success(profile));
+    // API 명세에 따른 응답 포맷으로 직접 반환
+    res.status(200).json(profile);
   } catch (error) {
     next(error);
   }
@@ -58,7 +59,8 @@ router.put('/profile', authMiddleware, async (req: Request, res: Response, next:
 
     const updatedProfile = await userProfileService.updateUserProfile(userId, updateData);
     
-    res.json(ResponseFormatter.success(updatedProfile));
+    // API 명세에 따른 응답 포맷으로 직접 반환
+    res.status(200).json(updatedProfile);
   } catch (error) {
     next(error);
   }

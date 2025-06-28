@@ -26,8 +26,17 @@ export const createApp = (container: DIContainer) => {
 
   // API 문서
   app.use('/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  
+  // OpenAPI JSON 문서 제공
   app.get('/openapi.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
     res.json(swaggerDocument);
+  });
+
+  // OpenAPI YAML 문서 제공 (선택사항)
+  app.get('/openapi.yaml', (req, res) => {
+    res.setHeader('Content-Type', 'text/yaml');
+    res.sendFile(path.join(__dirname, '../openapi.yaml'));
   });
 
   // 루트 경로에서 Swagger UI로 리다이렉트

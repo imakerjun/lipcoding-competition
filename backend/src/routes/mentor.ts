@@ -47,17 +47,21 @@ router.get('/mentors', authMiddleware, async (req: Request, res: Response, next:
     // 멘토 목록 조회
     const mentors = await mentorService.getAllMentors(options);
 
-    // 응답 형식 변환
+    // 응답 형식 변환 - API 명세에 따라 직접 배열 반환
     const responseData = mentors.map(mentor => ({
       id: mentor.id,
-      name: mentor.name || '',
       email: mentor.email,
-      bio: mentor.bio || '',
-      imageUrl: mentor.profileImage ? `/images/mentor/${mentor.id}` : `https://placehold.co/500x500.jpg?text=MENTOR`,
-      skills: mentor.skillsets
+      role: "mentor",
+      profile: {
+        name: mentor.name || '',
+        bio: mentor.bio || '',
+        imageUrl: mentor.profileImage ? `/images/mentor/${mentor.id}` : `https://placehold.co/500x500.jpg?text=MENTOR`,
+        skills: mentor.skillsets || []
+      }
     }));
 
-    res.json(ResponseFormatter.success(responseData, 'Mentors retrieved successfully'));
+    // API 명세에 따라 배열 직접 반환 (ResponseFormatter 사용하지 않음)
+    res.status(200).json(responseData);
   } catch (error) {
     next(error);
   }

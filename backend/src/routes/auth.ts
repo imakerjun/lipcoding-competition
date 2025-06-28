@@ -19,6 +19,15 @@ export const createAuthRouter = (container: DIContainer): Router => {
       if (!name) throw createValidationError.missingField('name');
       if (!role) throw createValidationError.missingField('role');
 
+      // 이메일 형식 검증
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        res.status(400).json({ 
+          error: 'Invalid email format' 
+        });
+        return;
+      }
+
       if (role !== 'mentor' && role !== 'mentee') {
         throw createValidationError.invalidRole(role);
       }
@@ -50,28 +59,18 @@ export const createAuthRouter = (container: DIContainer): Router => {
     try {
       const { email, password } = req.body;
 
-      // 입력 검증 - 로그인 실패로 간주하여 401 반환
+      // 입력 검증 - API 명세에 따라 400 Bad Request 반환
       if (!email || !password) {
-        res.status(401).json({ 
-          error: 'Missing required fields: email, password' 
+        res.status(400).json({ 
+          error: 'Missing required fields: email and password are required' 
         });
         return;
       }
 
       const result = await authService.login({ email, password });
 
+      // API 명세에 따른 응답 포맷: { token: "JWT_TOKEN" }
       res.status(200).json({
-        message: 'Login successful',
-        user: {
-          id: result.user.id,
-          email: result.user.email,
-          role: result.user.role
-        },
-        profile: {
-          id: result.profile.id,
-          name: result.profile.name,
-          bio: result.profile.bio
-        },
         token: result.token
       });
     } catch (error) {

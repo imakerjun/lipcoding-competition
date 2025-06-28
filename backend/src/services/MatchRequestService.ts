@@ -38,18 +38,54 @@ export class MatchRequestService implements IMatchRequestService {
     return requests;
   }
 
-  async acceptRequest(requestId: number, userId: number): Promise<boolean> {
+  async acceptRequest(requestId: number, userId: number): Promise<MatchRequestWithDetails> {
     await this.matchRequestModel.updateStatus(requestId, 'accepted');
-    return true;
+    const updatedRequest = await this.matchRequestModel.findById(requestId);
+    if (!updatedRequest) {
+      throw new Error('Request not found after update');
+    }
+    return {
+      id: updatedRequest.id,
+      mentorId: updatedRequest.mentorId,
+      menteeId: updatedRequest.menteeId,
+      message: updatedRequest.message,
+      status: 'accepted',
+      createdAt: updatedRequest.createdAt
+    };
   }
 
-  async rejectRequest(requestId: number, userId: number): Promise<boolean> {
+  async rejectRequest(requestId: number, userId: number): Promise<MatchRequestWithDetails> {
     await this.matchRequestModel.updateStatus(requestId, 'rejected');
-    return true;
+    const updatedRequest = await this.matchRequestModel.findById(requestId);
+    if (!updatedRequest) {
+      throw new Error('Request not found after update');
+    }
+    return {
+      id: updatedRequest.id,
+      mentorId: updatedRequest.mentorId,
+      menteeId: updatedRequest.menteeId,
+      message: updatedRequest.message,
+      status: 'rejected',
+      createdAt: updatedRequest.createdAt
+    };
   }
 
-  async cancelRequest(requestId: number, userId: number): Promise<boolean> {
-    await this.matchRequestModel.delete(requestId);
-    return true;
+  async cancelRequest(requestId: number, userId: number): Promise<MatchRequestWithDetails> {
+    const request = await this.matchRequestModel.findById(requestId);
+    if (!request) {
+      throw new Error('Request not found');
+    }
+    
+    // 상태를 cancelled로 업데이트 (삭제 대신)
+    await this.matchRequestModel.updateStatus(requestId, 'cancelled');
+    
+    return {
+      id: request.id,
+      mentorId: request.mentorId,
+      menteeId: request.menteeId,
+      message: request.message,
+      status: 'cancelled',
+      createdAt: request.createdAt
+    };
   }
 }

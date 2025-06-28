@@ -67,7 +67,18 @@ export class JWTService {
         return;
       }
 
-      jwt.verify(token, this.secretKey, { algorithms: ['HS256'] }, (err, decoded) => {
+      // 기본적인 JWT 형식 검증 (3개 부분으로 구성되어야 함)
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        reject(new Error('Malformed token'));
+        return;
+      }
+
+      jwt.verify(token, this.secretKey, { 
+        algorithms: ['HS256'],
+        issuer: this.issuer,
+        audience: this.audience
+      }, (err, decoded) => {
         if (err) {
           // JWT 라이브러리 에러를 더 구체적으로 처리
           if (err.name === 'TokenExpiredError') {
@@ -85,31 +96,20 @@ export class JWTService {
         try {
           const claims = decoded as JWTClaims;
           
-          // 토큰 유효성 검사
-          const now = Math.floor(Date.now() / 1000);
-          if (claims.exp <= now) {
-            reject(new Error('Token expired'));
-            return;
-          }
-
-          if (claims.nbf > now) {
-            reject(new Error('Token not yet valid'));
-            return;
-          }
-
-          if (claims.iss !== this.issuer || claims.aud !== this.audience) {
-            reject(new Error('Invalid token issuer or audience'));
-            return;
-          }
-
           // 필수 클레임 검증
           if (!claims.sub || !claims.email || !claims.role || !claims.name) {
             reject(new Error('Invalid token claims'));
             return;
           }
 
+          const userId = parseInt(claims.sub);
+          if (isNaN(userId)) {
+            reject(new Error('Invalid user ID in token'));
+            return;
+          }
+
           resolve({
-            userId: parseInt(claims.sub),
+            userId,
             email: claims.email,
             role: claims.role,
             name: claims.name
