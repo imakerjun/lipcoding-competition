@@ -8,7 +8,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // 각 테스트 전 데이터 초기화
+  // 각 테스트 전에는 특별한 정리 없음 (각 테스트가 독립적으로 데이터베이스를 관리)
 });
 
 afterEach(async () => {
