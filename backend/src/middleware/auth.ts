@@ -1,65 +1,50 @@
 import { Request, Response, NextFunction } from 'express';
+import { UserRole } from '../types'; // Corrected import path
+import { AuthError, ErrorCode } from '../errors/AppError';
 import { JWTService } from '../services/JWTService';
 
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    userId: number;
-    email: string;
-    role: 'mentor' | 'mentee';
-    name: string;
-  };
-}
-
-export class AuthMiddleware {
-  constructor(private jwtService: JWTService) {}
-
-  authenticate = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const authHeader = req.headers.authorization;
-      
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        res.status(401).json({ error: 'Authorization header required' });
-        return;
-      }
-
-      const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-      
-      // 빈 토큰 체크
-      if (!token || token.trim() === '') {
-        res.status(401).json({ error: 'Token required' });
-        return;
-      }
-
-      try {
-        const decoded = await this.jwtService.verifyToken(token);
-        req.user = decoded;
-        next();
-      } catch (jwtError: any) {
-        // JWT 검증 실패 시 항상 401 반환
-        console.error('JWT verification failed:', jwtError.message);
-        res.status(401).json({ error: 'Invalid or expired token' });
-        return;
-      }
-    } catch (error: any) {
-      // 예상치 못한 에러는 500으로 처리하지만 인증 관련은 401로
-      console.error('Authentication error:', error);
-      res.status(401).json({ error: 'Authentication failed' });
+declare global {
+    namespace Express {
+        interface Request {
+            user?: { id: number; role: UserRole };
+        }
     }
-  };
-
-  requireRole = (role: 'mentor' | 'mentee') => {
-    return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
-      if (!req.user) {
-        res.status(401).json({ error: 'Authentication required' });
-        return;
-      }
-
-      if (req.user.role !== role) {
-        res.status(403).json({ error: `${role} role required` });
-        return;
-      }
-
-      next();
-    };
-  };
 }
+
+// Middleware factory to inject JWTService dependency
+export const createAuthMiddleware = (jwtService: JWTService) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const authHeader = req.headers.authorization;
+            if (!authHeader?.startsWith('Bearer ')) {
+                // Use AuthError for consistency
+                throw new AuthError(ErrorCode.UNAUTHORIZED, 'Authorization header is missing or malformed');
+            }
+
+            const token = authHeader.split(' ')[1];
+            const decoded = jwtService.verifyToken(token);
+
+            req.user = { id: decoded.id, role: decoded.role };
+            next();
+        } catch (error) {
+            // Catch all errors from JWT verification and ensure a 401 response
+            next(new AuthError(ErrorCode.INVALID_TOKEN, 'Invalid or expired token.'));
+        }
+    };
+};
+
+export const authorize = (roles: UserRole[]) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        if (!req.user) {
+            // This case should ideally be handled by the authentication middleware first
+            return next(new AuthError(ErrorCode.UNAUTHORIZED, 'Authentication required'));
+        }
+
+        if (!roles.includes(req.user.role)) {
+            // Use AuthError for forbidden access
+            return next(new AuthError(ErrorCode.FORBIDDEN, 'You do not have permission to access this resource.'));
+        }
+
+        next();
+    };
+};
