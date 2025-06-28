@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { authService } from '../../services/authService';
-import { mentorService } from '../../services/mentorService';
+import { authService } from '../../services/auth';
+import { mentorService } from '../../services/mentor';
 
 interface Mentor {
   id: number;
@@ -50,8 +50,8 @@ const MentorDetailPage = () => {
     try {
       setLoading(true);
       // 기존 멘토 목록에서 해당 멘토를 찾아서 사용
-      const mentors = await mentorService.getMentors();
-      const foundMentor = mentors.find((m: any) => m.id === parseInt(id as string));
+      const mentorResponse = await mentorService.getMentors();
+      const foundMentor = mentorResponse.mentors.find((m: any) => m.id === parseInt(id as string));
       
       if (foundMentor) {
         setMentor(foundMentor);

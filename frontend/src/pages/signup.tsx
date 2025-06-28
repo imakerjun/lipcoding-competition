@@ -108,12 +108,12 @@ export default function Signup(): JSX.Element {
             <div className="space-y-2">
               <Label htmlFor="role">역할</Label>
               <Select value={formData.role} onValueChange={handleRoleChange}>
-                <SelectTrigger id="role">
+                <SelectTrigger id="role" data-testid="role-select">
                   <SelectValue placeholder="역할을 선택하세요" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mentee">멘티 (배우고 싶어요)</SelectItem>
-                  <SelectItem value="mentor">멘토 (가르치고 싶어요)</SelectItem>
+                <SelectContent data-testid="role-options">
+                  <SelectItem value="mentee" data-testid="mentee-option">멘티 (배우고 싶어요)</SelectItem>
+                  <SelectItem value="mentor" data-testid="mentor-option">멘토 (가르치고 싶어요)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

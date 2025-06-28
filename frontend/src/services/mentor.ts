@@ -4,6 +4,9 @@ export interface Mentor {
   id: number;
   name: string;
   bio: string;
+  skills: string[];
+  email: string;
+  profileImage?: string;
 }
 
 export interface MentorSearchParams {

@@ -78,6 +78,12 @@ export default function Mentors(): JSX.Element {
           <h1 className="text-3xl font-bold text-gray-900">멘토 목록</h1>
           <div className="flex space-x-4">
             <a
+              href="/requests"
+              className="btn btn-secondary"
+            >
+              요청 관리
+            </a>
+            <a
               href="/profile"
               className="btn btn-secondary"
             >
@@ -153,23 +159,28 @@ export default function Mentors(): JSX.Element {
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {mentors.map((mentor) => (
-                  <div key={mentor.id} className="card">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  <div key={mentor.id} className="mentor card">
+                    <h3 id="name" className="text-lg font-semibold text-gray-900 mb-2">
                       {mentor.name}
                     </h3>
                     <p className="text-gray-600 text-sm mb-4 line-clamp-3">
                       {mentor.bio || '자기소개가 없습니다.'}
                     </p>
-                    <button
-                      id={`request-mentor-${mentor.id}`}
-                      className="btn btn-primary w-full"
-                      onClick={() => {
-                        // TODO: 매칭 요청 기능 구현
-                        alert(`${mentor.name} 멘토에게 매칭 요청을 보냅니다.`);
-                      }}
-                    >
-                      매칭 요청
-                    </button>
+                    <div className="flex space-x-2">
+                      <button
+                        className="btn btn-secondary flex-1"
+                        onClick={() => router.push(`/mentors/${mentor.id}`)}
+                      >
+                        상세보기
+                      </button>
+                      <button
+                        id={`request-mentor-${mentor.id}`}
+                        className="btn btn-primary flex-1"
+                        onClick={() => router.push(`/mentors/${mentor.id}`)}
+                      >
+                        매칭 요청
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

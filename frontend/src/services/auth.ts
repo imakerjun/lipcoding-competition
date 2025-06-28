@@ -93,6 +93,20 @@ class AuthService {
     const user = this.getUser();
     return user?.role || null;
   }
+
+  async getCurrentUser(): Promise<User | null> {
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      // /me 엔드포인트가 있다면 사용, 없으면 로컬 스토리지에서 반환
+      const user = this.getUser();
+      return user;
+    } catch (error) {
+      console.error('Failed to get current user:', error);
+      return null;
+    }
+  }
 }
 
 export const authService = new AuthService();
