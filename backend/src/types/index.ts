@@ -1,8 +1,10 @@
+export type UserRole = 'mentor' | 'mentee';
+
 export interface User {
   id: number;
   email: string;
   password: string;
-  role: 'mentor' | 'mentee';
+  role: UserRole;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,14 +41,14 @@ export interface JWTPayload {
   jti: string;
   name: string;
   email: string;
-  role: 'mentor' | 'mentee';
+  role: UserRole;
 }
 
 export interface CreateUserRequest {
   email: string;
   password: string;
   name: string;
-  role: 'mentor' | 'mentee';
+  role: UserRole;
 }
 
 export interface LoginRequest {
