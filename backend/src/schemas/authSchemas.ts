@@ -5,7 +5,7 @@ const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d
 
 // 공통 스키마 요소들
 const emailSchema = Joi.string()
-  .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'org', 'edu', 'gov', 'kr'] } })
+  .email({ minDomainSegments: 2 })
   .lowercase()
   .trim()
   .required()

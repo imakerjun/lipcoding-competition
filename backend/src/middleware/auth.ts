@@ -24,12 +24,20 @@ export class AuthMiddleware {
 
       const token = authHeader.substring(7); // Remove 'Bearer ' prefix
       
+      // 빈 토큰 체크
+      if (!token || token.trim() === '') {
+        res.status(401).json({ error: 'Token required' });
+        return;
+      }
+
       const decoded = await this.jwtService.verifyToken(token);
       req.user = decoded;
       
       next();
-    } catch (error) {
-      res.status(401).json({ error: 'Invalid or expired token' });
+    } catch (error: any) {
+      // JWT 관련 에러는 모두 401로 처리
+      const errorMessage = error.message || 'Invalid or expired token';
+      res.status(401).json({ error: errorMessage });
     }
   };
 

@@ -50,9 +50,9 @@ export const createAuthRouter = (container: DIContainer): Router => {
     try {
       const { email, password } = req.body;
 
-      // 입력 검증
+      // 입력 검증 - 로그인 실패로 간주하여 401 반환
       if (!email || !password) {
-        res.status(400).json({ 
+        res.status(401).json({ 
           error: 'Missing required fields: email, password' 
         });
         return;

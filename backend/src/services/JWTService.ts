@@ -61,37 +61,62 @@ export class JWTService {
 
   verifyToken(token: string): Promise<{ userId: number; email: string; role: UserRole; name: string }> {
     return new Promise((resolve, reject) => {
+      // 토큰 형식 기본 검증
+      if (!token || typeof token !== 'string' || token.trim() === '') {
+        reject(new Error('Invalid token format'));
+        return;
+      }
+
       jwt.verify(token, this.secretKey, { algorithms: ['HS256'] }, (err, decoded) => {
         if (err) {
-          reject(new Error('Invalid token'));
+          // JWT 라이브러리 에러를 더 구체적으로 처리
+          if (err.name === 'TokenExpiredError') {
+            reject(new Error('Token expired'));
+          } else if (err.name === 'JsonWebTokenError') {
+            reject(new Error('Invalid token'));
+          } else if (err.name === 'NotBeforeError') {
+            reject(new Error('Token not yet valid'));
+          } else {
+            reject(new Error('Token verification failed'));
+          }
           return;
         }
 
-        const claims = decoded as JWTClaims;
-        
-        // 토큰 유효성 검사
-        const now = Math.floor(Date.now() / 1000);
-        if (claims.exp <= now) {
-          reject(new Error('Token expired'));
-          return;
-        }
+        try {
+          const claims = decoded as JWTClaims;
+          
+          // 토큰 유효성 검사
+          const now = Math.floor(Date.now() / 1000);
+          if (claims.exp <= now) {
+            reject(new Error('Token expired'));
+            return;
+          }
 
-        if (claims.nbf > now) {
-          reject(new Error('Token not yet valid'));
-          return;
-        }
+          if (claims.nbf > now) {
+            reject(new Error('Token not yet valid'));
+            return;
+          }
 
-        if (claims.iss !== this.issuer || claims.aud !== this.audience) {
-          reject(new Error('Invalid token issuer or audience'));
-          return;
-        }
+          if (claims.iss !== this.issuer || claims.aud !== this.audience) {
+            reject(new Error('Invalid token issuer or audience'));
+            return;
+          }
 
-        resolve({
-          userId: parseInt(claims.sub),
-          email: claims.email,
-          role: claims.role,
-          name: claims.name
-        });
+          // 필수 클레임 검증
+          if (!claims.sub || !claims.email || !claims.role || !claims.name) {
+            reject(new Error('Invalid token claims'));
+            return;
+          }
+
+          resolve({
+            userId: parseInt(claims.sub),
+            email: claims.email,
+            role: claims.role,
+            name: claims.name
+          });
+        } catch (parseError) {
+          reject(new Error('Invalid token format'));
+        }
       });
     });
   }
