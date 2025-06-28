@@ -22,7 +22,28 @@ VS Code 설정에서 GitHub Copilot 에이전트 모드가 활성화 되어 있�
 
 ![GHCP 에이전트 모드 활성화](./images/vscode-ghcp-agent.png)
 
-VS Code 설정에서 음성 인식 기능에 한국어로 설정되어 있는지 확인하세요! 기본값은 `auto`이지만 `Korean (South Korea)`로 강제 설정하면 좀 더 인식률이 높아집니다.
+## 음성 인식 한국어 설정
+
+VS Code 설정에서 음성 인식 기능을 한국어로 설정하세요! 다음 단계를 따라 설정할 수 있습니다:
+
+### 방법 1: 설정 UI 사용
+1. **VS Code 설정 열기**: `Ctrl+,` (Windows/Linux) 또는 `Cmd+,` (macOS)
+2. **음성 설정 검색**: 검색창에 "speech" 입력
+3. **언어 설정 변경**: 
+   - `Speech: Language` 설정을 찾아서 `auto`에서 `ko-KR` (Korean - South Korea)로 변경
+   - 또는 설정에서 `"speech.language": "ko-KR"`로 직접 설정
+
+### 방법 2: settings.json 직접 편집
+1. `Ctrl+Shift+P` (Windows/Linux) 또는 `Cmd+Shift+P` (macOS)로 명령 팔레트 열기
+2. "Preferences: Open Settings (JSON)" 검색 후 선택
+3. 다음 설정 추가:
+   ```json
+   {
+     "speech.language": "ko-KR"
+   }
+   ```
+
+기본값은 `auto`이지만 `Korean (South Korea)`로 강제 설정하면 한국어 인식률이 크게 향상됩니다.
 
 ![VS Code 음성 인식 언어 설정](./images/vscode-settings-voice.png)
 
@@ -48,4 +69,30 @@ GitHub Copilot 에이전트 모드를 선택하세요.
 
 ## 커스텀 지시사항 설정
 
-필요한 경우 GitHub Copilot이 좀 더 똑똑하게 일할 수 있도록 커스텀 지시사항(Custom Instructions)을 설정할 수 있습니다. `.github` 디렉토리 밑에 `copilot-instructions.md` 파일을 생성하고 거기에 커스텀 지시사항을 저장해 두세요. 더 자세한 내용은 [Customize AI responses in VS Code](https://code.visualstudio.com/docs/copilot/copilot-customization) 문서를 참조하세요.
+GitHub Copilot이 이 프로젝트의 요구사항과 맥락을 항상 기억하도록 **Custom Instructions**를 설정하세요!
+
+### 자동 설정 (권장)
+이 프로젝트에는 이미 `.github/copilot-instructions.md` 파일이 준비되어 있습니다. 이 파일에는 다음 내용들이 포함되어 있습니다:
+
+- 📋 프로젝트 요구사항 문서 참조
+- 🛠️ 기술 스택 및 개발 지침
+- 🎯 핵심 기능 및 우선순위
+- ⚠️ 주의사항 및 보안 고려사항
+- 🎨 UI/UX 요구사항
+
+### 수동 설정 방법
+1. **커스텀 지시사항 파일 생성**:
+   ```bash
+   # 프로젝트 루트에서
+   mkdir -p .github
+   touch .github/copilot-instructions.md
+   ```
+
+2. **VS Code에서 확인**:
+   - `F1` → "Developer: Reload Window" 실행
+   - GitHub Copilot Chat에서 프로젝트 맥락이 자동으로 로드됨
+
+3. **설정 확인**:
+   GitHub Copilot Chat에 "이 프로젝트의 요구사항을 알고 있나요?"라고 물어보세요.
+
+더 자세한 내용은 [Customize AI responses in VS Code](https://code.visualstudio.com/docs/copilot/copilot-customization) 문서를 참조하세요.

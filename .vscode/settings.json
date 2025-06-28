@@ -1,0 +1,18 @@
+{
+  "terminal.integrated.commandsToSkipShell": [
+    "workbench.action.terminal.focusFind",
+    "workbench.action.terminal.toggleFindCaseSensitive",
+    "workbench.action.terminal.toggleFindRegex",
+    "workbench.action.terminal.toggleFindWholeWord"
+  ],
+  "terminal.integrated.sendKeybindingsToShell": false,
+  "terminal.integrated.allowChords": false,
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.profiles.osx": {
+    "zsh": {
+      "path": "zsh",
+      "args": ["-l"]
+    }
+  },
+  "speech.language": "ko-KR"
+}
