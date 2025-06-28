@@ -164,4 +164,147 @@ export class MatchRequestModel {
       });
     });
   }
+
+  async findById(requestId: number): Promise<MatchRequest | null> {
+    return new Promise((resolve, reject) => {
+      const selectSQL = 'SELECT * FROM match_requests WHERE id = ?';
+      
+      this.db.get(selectSQL, [requestId], (err: any, row: any) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        if (!row) {
+          resolve(null);
+          return;
+        }
+
+        const request: MatchRequest = {
+          id: row.id,
+          mentorId: row.mentor_id,
+          menteeId: row.mentee_id,
+          message: row.message,
+          status: row.status,
+          createdAt: new Date(row.created_at),
+          updatedAt: new Date(row.updated_at)
+        };
+
+        resolve(request);
+      });
+    });
+  }
+
+  async findByMentorAndMentee(mentorId: number, menteeId: number): Promise<MatchRequest | null> {
+    return new Promise((resolve, reject) => {
+      const selectSQL = 'SELECT * FROM match_requests WHERE mentor_id = ? AND mentee_id = ?';
+      
+      this.db.get(selectSQL, [mentorId, menteeId], (err: any, row: any) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        if (!row) {
+          resolve(null);
+          return;
+        }
+
+        const request: MatchRequest = {
+          id: row.id,
+          mentorId: row.mentor_id,
+          menteeId: row.mentee_id,
+          message: row.message,
+          status: row.status,
+          createdAt: new Date(row.created_at),
+          updatedAt: new Date(row.updated_at)
+        };
+
+        resolve(request);
+      });
+    });
+  }
+
+  async findIncomingRequests(mentorId: number): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      const selectSQL = `
+        SELECT 
+          mr.*,
+          up.name as mentee_name
+        FROM match_requests mr
+        INNER JOIN users u ON mr.mentee_id = u.id
+        INNER JOIN user_profiles up ON u.id = up.user_id
+        WHERE mr.mentor_id = ?
+        ORDER BY mr.created_at DESC
+      `;
+      
+      this.db.all(selectSQL, [mentorId], (err: any, rows: any[]) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        const requests = rows.map(row => ({
+          id: row.id,
+          mentorId: row.mentor_id,
+          menteeId: row.mentee_id,
+          message: row.message,
+          status: row.status,
+          createdAt: new Date(row.created_at),
+          menteeName: row.mentee_name
+        }));
+
+        resolve(requests);
+      });
+    });
+  }
+
+  async findOutgoingRequests(menteeId: number): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      const selectSQL = `
+        SELECT 
+          mr.*,
+          up.name as mentor_name
+        FROM match_requests mr
+        INNER JOIN users u ON mr.mentor_id = u.id
+        INNER JOIN user_profiles up ON u.id = up.user_id
+        WHERE mr.mentee_id = ?
+        ORDER BY mr.created_at DESC
+      `;
+      
+      this.db.all(selectSQL, [menteeId], (err: any, rows: any[]) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        const requests = rows.map(row => ({
+          id: row.id,
+          mentorId: row.mentor_id,
+          menteeId: row.mentee_id,
+          message: row.message,
+          status: row.status,
+          createdAt: new Date(row.created_at),
+          mentorName: row.mentor_name
+        }));
+
+        resolve(requests);
+      });
+    });
+  }
+
+  async delete(requestId: number): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      const deleteSQL = 'DELETE FROM match_requests WHERE id = ?';
+      
+      this.db.run(deleteSQL, [requestId], function(err: any) {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        resolve(this.changes > 0);
+      });
+    });
+  }
 }

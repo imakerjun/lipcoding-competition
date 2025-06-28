@@ -8,7 +8,7 @@ import YAML from 'yamljs';
 import { createAuthRouter } from './routes/auth';
 import userRoutes from './routes/user';
 import mentorRoutes from './routes/mentor';
-import matchRequestRoutes from './routes/matchRequest';
+import { createMatchRequestRoutes } from './routes/matchRequest';
 import { errorHandler, requestIdMiddleware, notFoundHandler } from './middleware/errorHandler';
 import { DIContainer } from './container/DIContainer';
 
@@ -39,7 +39,7 @@ export const createApp = (container: DIContainer) => {
   app.use('/api', createAuthRouter(container));
   app.use('/api', userRoutes);
   app.use('/api', mentorRoutes);
-  app.use('/api', matchRequestRoutes);
+  app.use('/api/match-requests', createMatchRequestRoutes(container));
 
   // 404 핸들러
   app.use(notFoundHandler);
